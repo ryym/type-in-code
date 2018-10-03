@@ -6,7 +6,7 @@
       cols="1"
       rows="1"
       ref="textarea"
-      class="screen-textarea"
+      class="textarea"
       @input="parseInput"
      ></textarea>
     <div id="error"></div>
@@ -61,14 +61,12 @@ export default {
 };
 </script>
 
-<style>
-/* XXX: Should use scoped styles */
-
+<style scoped>
 pre {
   margin: 0;
 }
 
-.screen-textarea {
+.textarea {
   /* XXX: Is there a better way to hide textarea? */
   position: absolute;
   top: -100px;
@@ -87,7 +85,7 @@ pre {
   background-color: rgba(48, 48, 48, 0.3);
 }
 
-.display > code {
+.display >>> code {
   padding-right: 0;
   background-color: transparent;
 }
