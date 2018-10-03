@@ -7,9 +7,15 @@
       rows="1"
       ref="textarea"
       class="textarea"
-      @input="parseInput"
+      @keydown="preventInvalidKeys"
+      @keyup="parseInput"
      ></textarea>
-    <div id="error"></div>
+    <div class="miss">
+      <template  v-if="miss">
+        <div class="miss-got">{{miss.got}}</div>
+        <div class="miss-want">{{miss.want}}</div>
+      </template>
+    </div>
     <div class="container" @click="focusTextarea">
       <code-block lang="javascript" :code-html="codeHtml" />
       <code-block class="display" lang="javascript" :code-html="inputHtml" />
@@ -38,6 +44,8 @@ export default {
       finalCode: code,
       codeHtml: result.value,
       inputHtml: '',
+      miss: null,
+      isLastKeyValid: true,
     };
   },
 
@@ -45,13 +53,30 @@ export default {
     focusTextarea() {
       this.$refs.textarea.focus();
     },
+
+    preventInvalidKeys(event) {
+      this.isLastKeyValid = event.code != 'Backspace';
+      if (!this.isLastKeyValid) {
+        event.preventDefault();
+      }
+    },
+
     parseInput(event) {
+      if (!this.isLastKeyValid) {
+        return;
+      }
+
       const code = event.target.value;
+      const lastIdx = code.length - 1;
       if (this.finalCode.indexOf(code) === -1) {
-        console.log('wrong input');
-        const lastIdx = code.length - 1;
+        this.miss = {
+          want: this.finalCode[lastIdx],
+          got: code[lastIdx],
+        };
         this.$refs.textarea.value = code.substring(0, lastIdx);
         return;
+      } else {
+        this.miss = null;
       }
 
       const result = hljs.highlight('javascript', code, true);
@@ -70,6 +95,30 @@ pre {
   /* XXX: Is there a better way to hide textarea? */
   position: absolute;
   top: -100px;
+}
+
+.miss {
+  height: 50px;
+}
+
+.miss-got {
+  color: red;
+}
+
+.miss-got::before {
+  content: '✖ ';
+  width: 20px;
+  display: inline-block;
+}
+
+.miss-want {
+  color: green;
+}
+
+.miss-want::before {
+  content: '✓ ';
+  width: 20px;
+  display: inline-block;
 }
 
 .container {
