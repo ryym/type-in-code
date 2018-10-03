@@ -1,7 +1,6 @@
 <template>
   <div>
-    <h1>Hello, {{name}}!</h1>
-    <div v-html="html"></div>
+    <h1>Type in Code</h1>
     <screen></screen>
   </div>
 </template>
@@ -13,15 +12,9 @@ export default {
   components: {
     Screen,
   },
-
-  data() {
-    return {name: 'world', html: '<em>hello</em>'};
-  },
 };
 </script>
 
 <style scoped>
-h1 {
-  color: green;
-}
+/* nothing */
 </style>

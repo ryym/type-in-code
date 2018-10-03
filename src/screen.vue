@@ -1,8 +1,16 @@
 <template>
   <div>
-    <textarea id="input" cols="30" rows="10" @input="parseInput" ref="textarea"></textarea>
+    <textarea
+      autofocus
+      id="input"
+      cols="1"
+      rows="1"
+      ref="textarea"
+      class="screen-textarea"
+      @input="parseInput"
+     ></textarea>
     <div id="error"></div>
-    <div class="container">
+    <div class="container" @click="focusTextarea">
       <code-block lang="javascript" :code-html="codeHtml" />
       <code-block class="display" lang="javascript" :code-html="inputHtml" />
     </div>
@@ -34,6 +42,9 @@ export default {
   },
 
   methods: {
+    focusTextarea() {
+      this.$refs.textarea.focus();
+    },
     parseInput(event) {
       const code = event.target.value;
       if (this.finalCode.indexOf(code) === -1) {
@@ -55,6 +66,12 @@ export default {
 
 pre {
   margin: 0;
+}
+
+.screen-textarea {
+  /* XXX: Is there a better way to hide textarea? */
+  position: absolute;
+  top: -100px;
 }
 
 .container {
