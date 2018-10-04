@@ -1,8 +1,12 @@
 import Vue from 'vue';
-import app from './App';
+import Vuex from 'vuex';
+import {createStore} from './store';
+import App from './App';
 
-// XXX: temporary
-// import '../proto/highlight.pack.js';
+Vue.use(Vuex);
 
-const App = Vue.extend(app);
-new App().$mount('#app');
+new Vue({
+  el: '#app',
+  store: createStore(),
+  render: h => h(App),
+});
