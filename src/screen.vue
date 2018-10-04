@@ -7,7 +7,7 @@
       class="textarea"
       :disabled="finished"
       @keydown="preventInvalidKeys"
-      @keyup="parseInput"
+      @input="parseInput"
     >
     </textarea>
     <div class="main">
