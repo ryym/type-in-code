@@ -8,12 +8,13 @@
       rows="1"
       ref="textarea"
       class="textarea"
+      :disabled="finished"
       @keydown="preventInvalidKeys"
       @keyup="parseInput"
     >
     </textarea>
     <div class="main">
-      <div class="mask" v-if="!started"></div>
+      <div class="mask" v-if="!isInGame"></div>
       <div class="miss">
         <template  v-if="miss">
           <div class="miss-got">{{miss.got}}</div>
@@ -24,6 +25,11 @@
         <code-block lang="javascript" :code-html="codeHtml" />
         <code-block class="display" lang="javascript" :code-html="inputHtml" />
       </div>
+      <dialog :open="finished">
+        <p>clear!</p>
+        <p>{{elapsedTime}}ms</p>
+        <p>Miss types: {{missTypes}} / {{nTypes}} ({{missPercentage}}%)</p>
+      </dialog>
     </div>
   </div>
   </template>
@@ -46,18 +52,43 @@ export default {
     const code = `console.log('hello');`;
     const result = hljs.highlight('javascript', code, true);
     return {
-      started: false,
+      startedTime: null,
+      finishedTime: null,
       finalCode: code,
       codeHtml: result.value,
       inputHtml: '',
       miss: null,
       isLastKeyValid: true,
+      nTypes: 0,
+      missTypes: 0,
     };
+  },
+
+  computed: {
+    started() {
+      return this.startedTime != null;
+    },
+
+    finished() {
+      return this.started && this.finishedTime != null;
+    },
+
+    isInGame() {
+      return this.started && !this.finished;
+    },
+
+    elapsedTime() {
+      return this.finishedTime - this.startedTime;
+    },
+
+    missPercentage() {
+      return Math.floor((this.missTypes / this.nTypes) * 100);
+    },
   },
 
   methods: {
     startTyping() {
-      this.started = true;
+      this.startedTime = Date.now();
       this.focusTextarea();
     },
 
@@ -77,9 +108,12 @@ export default {
         return;
       }
 
+      this.nTypes += 1;
+
       const code = event.target.value;
       const lastIdx = code.length - 1;
       if (this.finalCode.indexOf(code) === -1) {
+        this.missTypes += 1;
         this.miss = {
           want: this.finalCode[lastIdx],
           got: code[lastIdx],
@@ -92,6 +126,14 @@ export default {
 
       const result = hljs.highlight('javascript', code, true);
       this.inputHtml = result.value;
+
+      if (code.length === this.finalCode.length) {
+        this.finishTyping();
+      }
+    },
+
+    finishTyping() {
+      this.finishedTime = Date.now();
     },
   },
 };
