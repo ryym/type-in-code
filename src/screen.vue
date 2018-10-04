@@ -23,7 +23,13 @@
       </div>
       <div class="container" @click="focusTextarea">
         <code-block lang="javascript" :code-html="codeHtml" />
-        <code-block class="display" lang="javascript" :code-html="inputHtml" />
+        <code-block
+          class="display"
+          lang="javascript"
+          :code-html="inputHtml"
+          show-cursor
+          :inputting="isInGame"
+         />
       </div>
       <dialog :open="finished">
         <p>clear!</p>
@@ -50,6 +56,7 @@ export default {
 
   data() {
     const code = `console.log('hello');`;
+
     const result = hljs.highlight('javascript', code, true);
     return {
       startedTime: null,
@@ -206,10 +213,5 @@ pre {
 .display >>> code {
   padding-right: 0;
   background-color: transparent;
-}
-
-.code-cursor {
-  margin: 0 10px 0 0;
-  border-right: 1px white solid;
 }
 </style>
