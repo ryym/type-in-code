@@ -1,8 +1,5 @@
 <template>
   <div>
-    <button type="button" class="start-btn" @click="startTyping">
-      {{started ? "STARTED!" : "START"}}
-    </button>
     <textarea
       cols="1"
       rows="1"
@@ -43,7 +40,18 @@
   <script>
 import CodeBlock from './code-block';
 
+const SAMPLE_CODE = `function add(a, b) {
+  return a + b;
+}`;
+
 export default {
+  props: {
+    startedTime: {
+      type: Number,
+      default: null,
+    },
+  },
+
   components: {
     CodeBlock,
   },
@@ -55,11 +63,10 @@ export default {
   },
 
   data() {
-    const code = `console.log('hello');`;
+    const code = SAMPLE_CODE;
 
     const result = hljs.highlight('javascript', code, true);
     return {
-      startedTime: null,
       finishedTime: null,
       finalCode: code,
       codeHtml: result.value,
@@ -93,14 +100,22 @@ export default {
     },
   },
 
-  methods: {
-    startTyping() {
-      this.startedTime = Date.now();
-      this.focusTextarea();
+  watch: {
+    startedTime(next, prev) {
+      if (prev == null && next != null) {
+        // Start typing.
+        // Without delaying the focusing,
+        // a space (the trigger key to start) is inserted
+        // to the textarea...
+        requestAnimationFrame(() => this.focusTextarea());
+      }
     },
+  },
 
+  methods: {
     focusTextarea() {
       this.$refs.textarea.focus();
+      this.$refs.textarea.value = '';
     },
 
     preventInvalidKeys(event) {
