@@ -4,13 +4,14 @@
     <p>
       This is a typing game using programming source code.<br>
       <span v-show="!startedTime">
-        Press SPACE to start!
+        Press SPACE to
+        {{nPlays === 0 ? "start" : "retry"}}!
       </span>
       <span v-show="startedTime">
         Started!
       </span>
     </p>
-    <screen :started-time="startedTime"></screen>
+    <screen :started-time="startedTime" @finish="handleFinish"></screen>
   </div>
 </template>
 
@@ -33,13 +34,14 @@ export default {
   data() {
     return {
       startedTime: null,
+      nPlays: 0,
     };
   },
 
   methods: {
     detectKeydown(event) {
       if (event.code == 'Space') {
-        this.startedTime = Date.now();
+        this.startTyping();
         this.removeKeydownHandler();
       }
     },
@@ -48,6 +50,15 @@ export default {
       if (this.keydownHandler) {
         document.removeEventListener('keydown', this.keydownHandler);
       }
+    },
+
+    startTyping() {
+      this.startedTime = Date.now();
+    },
+
+    handleFinish() {
+      this.startedTime = null;
+      this.nPlays += 1;
     },
   },
 };

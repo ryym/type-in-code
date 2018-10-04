@@ -30,7 +30,7 @@
       </div>
       <dialog :open="finished">
         <p>clear!</p>
-        <p>{{elapsedTime}}ms</p>
+        <p>{{totalTime}}ms</p>
         <p>Miss types: {{missTypes}} / {{nTypes}} ({{missPercentage}}%)</p>
       </dialog>
     </div>
@@ -75,6 +75,7 @@ export default {
       isLastKeyValid: true,
       nTypes: 0,
       missTypes: 0,
+      totalTime: null,
     };
   },
 
@@ -84,15 +85,11 @@ export default {
     },
 
     finished() {
-      return this.started && this.finishedTime != null;
+      return this.finishedTime != null;
     },
 
     isInGame() {
       return this.started && !this.finished;
-    },
-
-    elapsedTime() {
-      return this.finishedTime - this.startedTime;
     },
 
     missPercentage() {
@@ -103,16 +100,25 @@ export default {
   watch: {
     startedTime(next, prev) {
       if (prev == null && next != null) {
-        // Start typing.
-        // Without delaying the focusing,
-        // a space (the trigger key to start) is inserted
-        // to the textarea...
-        requestAnimationFrame(() => this.focusTextarea());
+        this.startTyping();
       }
     },
   },
 
   methods: {
+    startTyping() {
+      this.finishedTime = null;
+      this.inputHtml = '';
+      this.nTypes = 0;
+      this.missTypes = 0;
+      this.totalTime = null;
+
+      // Without delaying the focusing,
+      // a space (the trigger key to start) is inserted
+      // to the textarea...
+      requestAnimationFrame(() => this.focusTextarea());
+    },
+
     focusTextarea() {
       this.$refs.textarea.focus();
       this.$refs.textarea.value = '';
@@ -156,6 +162,8 @@ export default {
 
     finishTyping() {
       this.finishedTime = Date.now();
+      this.totalTime = this.finishedTime - this.startedTime;
+      this.$emit('finish');
     },
   },
 };
