@@ -4,7 +4,7 @@
     <p>
       This is a typing game using programming source code.<br>
       <span v-show="!startedTime">
-        Press SPACE to
+        Press ENTER to
         {{nPlays === 0 ? "start" : "retry"}}!
       </span>
       <span v-show="startedTime">
@@ -28,7 +28,8 @@ export default {
   },
 
   mounted() {
-    this.keydownHandler = document.addEventListener('keydown', this.detectKeydown);
+    document.addEventListener('keydown', this.detectKeydown);
+    this.$store.dispatch('fetchProblemCode');
   },
 
   beforeDestroy() {
@@ -50,16 +51,14 @@ export default {
 
   methods: {
     detectKeydown(event) {
-      if (event.code == 'Space') {
+      if (event.code == 'Enter') {
         this.startTyping();
         this.removeKeydownHandler();
       }
     },
 
     removeKeydownHandler() {
-      if (this.keydownHandler) {
-        document.removeEventListener('keydown', this.keydownHandler);
-      }
+      document.removeEventListener('keydown', this.detectKeydown);
     },
 
     startTyping() {

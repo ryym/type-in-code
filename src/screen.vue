@@ -101,13 +101,9 @@ export default {
   },
 
   data() {
-    // TODO: Replace tabs and full width spaces to spaces.
-    // TODO: Replace CRLF to LF?
-    const result = hljs.highlight('javascript', this.problem.code, true);
     return {
       finishedTime: null,
       codeLang: 'javascript',
-      finalHtml: result.value,
       inputHtml: '',
       miss: null,
       isLastKeyValid: true,
@@ -119,6 +115,12 @@ export default {
   },
 
   computed: {
+    finalHtml() {
+      // TODO: Replace tabs and full width spaces to spaces.
+      // TODO: Replace CRLF to LF?
+      const result = hljs.highlight('javascript', this.problem.code, true);
+      return result.value;
+    },
     started() {
       return this.startedTime != null;
     },
@@ -154,14 +156,16 @@ export default {
       this.totalTime = null;
 
       // Without delaying the focusing,
-      // a space (the trigger key to start) is inserted
+      // a trigger key to start the typing game is inserted
       // to the textarea...
-      requestAnimationFrame(() => this.focusTextarea());
+      requestAnimationFrame(() => {
+        this.focusTextarea();
+        this.$refs.textarea.value = '';
+      });
     },
 
     focusTextarea() {
       this.$refs.textarea.focus();
-      this.$refs.textarea.value = '';
     },
 
     preventInvalidKeys(event) {
@@ -237,6 +241,7 @@ export default {
 
 <style scoped>
 pre {
+  font-size: 16px;
   margin: 0;
 }
 
