@@ -19,10 +19,10 @@
         </template>
       </div>
       <div class="container" @click="focusTextarea">
-        <code-block lang="javascript" :code-html="codeHtml" />
+        <code-block :lang="codeLang" :code-html="codeHtml" />
         <code-block
           class="display"
-          lang="javascript"
+          :lang="codeLang"
           :code-html="inputHtml"
           show-cursor
           :inputting="isInGame"
@@ -44,6 +44,23 @@ const SAMPLE_CODE = `function add(a, b) {
   return a + b;
 }`;
 
+const SAMPLE_CODE_NON_ASCII = `// 日本語コメント
+function ほげ(a, いうえ, c) {
+  console.log(a + "𠮷野屋😭")
+}`;
+
+const findNextAsciiPos = (str, from) => {
+  for (let i = from; i < str.length; i++) {
+    const cc = str.charCodeAt(i);
+
+    // Allow characters between space and tilde and line feeds.
+    if ((32 <= cc && cc <= 126) || cc === 10) {
+      return i;
+    }
+  }
+  return null;
+};
+
 export default {
   props: {
     startedTime: {
@@ -63,18 +80,22 @@ export default {
   },
 
   data() {
-    const code = SAMPLE_CODE;
+    // TODO: Replace tabs and full width spaces to spaces.
+    // TODO: Replace CRLF to LF?
+    const code = SAMPLE_CODE_NON_ASCII;
 
     const result = hljs.highlight('javascript', code, true);
     return {
       finishedTime: null,
       finalCode: code,
+      codeLang: 'javascript',
       codeHtml: result.value,
       inputHtml: '',
       miss: null,
       isLastKeyValid: true,
       nTypes: 0,
       missTypes: 0,
+      cursorPos: null,
       totalTime: null,
     };
   },
@@ -111,6 +132,7 @@ export default {
       this.inputHtml = '';
       this.nTypes = 0;
       this.missTypes = 0;
+      this.cursorPos = findNextAsciiPos(this.finalCode, 0);
       this.totalTime = null;
 
       // Without delaying the focusing,
@@ -140,7 +162,7 @@ export default {
 
       const code = event.target.value;
       const lastIdx = code.length - 1;
-      if (this.finalCode.indexOf(code) === -1) {
+      if (code[this.cursorPos] !== this.finalCode[this.cursorPos]) {
         this.missTypes += 1;
         this.miss = {
           want: this.finalCode[lastIdx],
@@ -158,6 +180,21 @@ export default {
       if (code.length === this.finalCode.length) {
         this.finishTyping();
       }
+
+      const nextPos = findNextAsciiPos(this.finalCode, this.cursorPos + 1);
+      if (nextPos == null) {
+        // TODO: No ASCII characters remain.
+        console.log('no ASCII');
+        return;
+      }
+      if (nextPos - this.cursorPos > 1) {
+        const addedCode = code + this.finalCode.substring(this.cursorPos + 1, nextPos);
+        this.$refs.textarea.value = addedCode;
+
+        const result2 = hljs.highlight('javascript', addedCode, true);
+        this.inputHtml = result2.value;
+      }
+      this.cursorPos = nextPos;
     },
 
     finishTyping() {
