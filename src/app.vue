@@ -11,7 +11,11 @@
         Started!
       </span>
     </p>
-    <screen :started-time="startedTime" @finish="handleFinish"></screen>
+    <screen
+      :problem="problem"
+      :started-time="startedTime"
+      @finish="handleFinish"
+     ></screen>
   </div>
 </template>
 
@@ -36,6 +40,12 @@ export default {
       startedTime: null,
       nPlays: 0,
     };
+  },
+
+  computed: {
+    problem() {
+      return this.$store.state.problem;
+    },
   },
 
   methods: {

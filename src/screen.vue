@@ -19,10 +19,13 @@
         </template>
       </div>
       <div class="container" @click="focusTextarea">
-        <code-block :lang="codeLang" :code-html="codeHtml" />
+        <code-block
+          :lang="problem.lang"
+          :code-html="finalHtml"
+         />
         <code-block
           class="display"
-          :lang="codeLang"
+          :lang="problem.lang"
           :code-html="inputHtml"
           show-cursor
           :inputting="isInGame"
@@ -77,6 +80,10 @@ const makeSpacePrefixes = (str, from) => {
 
 export default {
   props: {
+    problem: {
+      type: Object,
+      required: true,
+    },
     startedTime: {
       type: Number,
       default: null,
@@ -96,14 +103,11 @@ export default {
   data() {
     // TODO: Replace tabs and full width spaces to spaces.
     // TODO: Replace CRLF to LF?
-    const code = SAMPLE_CODE_NON_ASCII;
-
-    const result = hljs.highlight('javascript', code, true);
+    const result = hljs.highlight('javascript', this.problem.code, true);
     return {
       finishedTime: null,
-      finalCode: code,
       codeLang: 'javascript',
-      codeHtml: result.value,
+      finalHtml: result.value,
       inputHtml: '',
       miss: null,
       isLastKeyValid: true,
@@ -146,7 +150,7 @@ export default {
       this.inputHtml = '';
       this.nTypes = 0;
       this.missTypes = 0;
-      this.cursorPos = findNextAsciiPos(this.finalCode, 0);
+      this.cursorPos = findNextAsciiPos(this.problem.code, 0);
       this.totalTime = null;
 
       // Without delaying the focusing,
@@ -174,11 +178,13 @@ export default {
 
       this.nTypes += 1;
 
+      const finalCode = this.problem.code;
+
       let code = event.target.value;
-      if (code[this.cursorPos] !== this.finalCode[this.cursorPos]) {
+      if (code[this.cursorPos] !== finalCode[this.cursorPos]) {
         this.missTypes += 1;
         this.miss = {
-          want: this.finalCode[this.cursorPos],
+          want: finalCode[this.cursorPos],
           got: code[this.cursorPos],
         };
         this.$refs.textarea.value = code.substring(0, this.cursorPos);
@@ -188,8 +194,8 @@ export default {
       }
 
       // Skip space prefixes.
-      if (this.finalCode.charCodeAt(this.cursorPos) === CHAR_CODE.LF) {
-        const spaces = makeSpacePrefixes(this.finalCode, this.cursorPos + 1);
+      if (finalCode.charCodeAt(this.cursorPos) === CHAR_CODE.LF) {
+        const spaces = makeSpacePrefixes(finalCode, this.cursorPos + 1);
         if (spaces) {
           this.cursorPos += spaces.length;
           code += spaces;
@@ -201,12 +207,12 @@ export default {
       this.inputHtml = result.value;
 
       // Skip un-inputtable characters.
-      const nextPos = findNextAsciiPos(this.finalCode, this.cursorPos + 1);
+      const nextPos = findNextAsciiPos(finalCode, this.cursorPos + 1);
       if (nextPos == null) {
-        this.cursorPos = this.finalCode.length;
+        this.cursorPos = finalCode.length;
       } else {
         if (nextPos - this.cursorPos > 1) {
-          const addedCode = code + this.finalCode.substring(this.cursorPos + 1, nextPos);
+          const addedCode = code + finalCode.substring(this.cursorPos + 1, nextPos);
           this.$refs.textarea.value = addedCode;
 
           const result2 = hljs.highlight('javascript', addedCode, true);
@@ -215,7 +221,7 @@ export default {
         this.cursorPos = nextPos;
       }
 
-      if (this.cursorPos >= this.finalCode.length) {
+      if (this.cursorPos >= finalCode.length) {
         this.finishTyping();
       }
     },
