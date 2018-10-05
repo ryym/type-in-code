@@ -46,19 +46,33 @@ const SAMPLE_CODE = `function add(a, b) {
 
 const SAMPLE_CODE_NON_ASCII = `// 日本語コメント
 function ほげ(a, いうえ, c) {
-  console.log(a + "𠮷野屋😭")
+  あい, console.log(a + "𠮷野屋😭")
 }`;
+
+const CHAR_CODE = {
+  LF: 10,
+};
 
 const findNextAsciiPos = (str, from) => {
   for (let i = from; i < str.length; i++) {
     const cc = str.charCodeAt(i);
 
     // Allow characters between space and tilde and line feeds.
-    if ((32 <= cc && cc <= 126) || cc === 10) {
+    if ((32 <= cc && cc <= 126) || cc === CHAR_CODE.LF) {
       return i;
     }
   }
   return null;
+};
+
+const makeSpacePrefixes = (str, from) => {
+  let i = from;
+  let spaces = '';
+  while (str[i] === ' ' && i < str.length) {
+    spaces += ' ';
+    i += 1;
+  }
+  return spaces;
 };
 
 export default {
@@ -160,41 +174,50 @@ export default {
 
       this.nTypes += 1;
 
-      const code = event.target.value;
-      const lastIdx = code.length - 1;
+      let code = event.target.value;
       if (code[this.cursorPos] !== this.finalCode[this.cursorPos]) {
         this.missTypes += 1;
         this.miss = {
-          want: this.finalCode[lastIdx],
-          got: code[lastIdx],
+          want: this.finalCode[this.cursorPos],
+          got: code[this.cursorPos],
         };
-        this.$refs.textarea.value = code.substring(0, lastIdx);
+        this.$refs.textarea.value = code.substring(0, this.cursorPos);
         return;
       } else {
         this.miss = null;
       }
 
+      // Skip space prefixes.
+      if (this.finalCode.charCodeAt(this.cursorPos) === CHAR_CODE.LF) {
+        const spaces = makeSpacePrefixes(this.finalCode, this.cursorPos + 1);
+        if (spaces) {
+          this.cursorPos += spaces.length;
+          code += spaces;
+          this.$refs.textarea.value = code;
+        }
+      }
+
       const result = hljs.highlight('javascript', code, true);
       this.inputHtml = result.value;
 
-      if (code.length === this.finalCode.length) {
-        this.finishTyping();
-      }
-
+      // Skip un-inputtable characters.
       const nextPos = findNextAsciiPos(this.finalCode, this.cursorPos + 1);
       if (nextPos == null) {
-        // TODO: No ASCII characters remain.
-        console.log('no ASCII');
-        return;
-      }
-      if (nextPos - this.cursorPos > 1) {
-        const addedCode = code + this.finalCode.substring(this.cursorPos + 1, nextPos);
-        this.$refs.textarea.value = addedCode;
+        this.cursorPos = this.finalCode.length;
+      } else {
+        if (nextPos - this.cursorPos > 1) {
+          const addedCode = code + this.finalCode.substring(this.cursorPos + 1, nextPos);
+          this.$refs.textarea.value = addedCode;
 
-        const result2 = hljs.highlight('javascript', addedCode, true);
-        this.inputHtml = result2.value;
+          const result2 = hljs.highlight('javascript', addedCode, true);
+          this.inputHtml = result2.value;
+        }
+        this.cursorPos = nextPos;
       }
-      this.cursorPos = nextPos;
+
+      if (this.cursorPos >= this.finalCode.length) {
+        this.finishTyping();
+      }
     },
 
     finishTyping() {
