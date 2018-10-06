@@ -5,8 +5,15 @@ import App from './App';
 
 Vue.use(Vuex);
 
+const store = createStore();
+
+if (process.env.NODE_ENV === 'development') {
+  // For easy debugging.
+  window._store = store;
+}
+
 new Vue({
   el: '#app',
-  store: createStore(),
+  store,
   render: h => h(App),
 });
