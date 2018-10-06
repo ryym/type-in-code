@@ -40,7 +40,7 @@
   </div>
   </template>
 
-  <script>
+<script>
 import CodeBlock from './code-block';
 
 const SAMPLE_CODE = `function add(a, b) {

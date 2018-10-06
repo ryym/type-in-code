@@ -77,7 +77,7 @@ module.exports = {
       },
 
       {
-        test: /\.css$/,
+        test: /\.s?css$/,
         include: SRC_ROOT,
         use: [
           byEnv({

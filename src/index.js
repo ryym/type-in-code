@@ -3,6 +3,8 @@ import Vuex from 'vuex';
 import {createStore} from './store';
 import App from './App';
 
+import './global.scss';
+
 Vue.use(Vuex);
 
 const store = createStore();
