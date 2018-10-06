@@ -12,12 +12,6 @@
     </textarea>
     <div class="main">
       <div class="mask" v-if="!isInGame"></div>
-      <div class="miss">
-        <template  v-if="miss">
-          <div class="miss-got">{{miss.got}}</div>
-          <div class="miss-want">{{miss.want}}</div>
-        </template>
-      </div>
       <div class="container" @click="focusTextarea">
         <code-block
           :lang="problem.lang"
@@ -29,6 +23,7 @@
           :code-html="inputHtml"
           show-cursor
           :inputting="isInGame"
+          :has-missed="missed"
          />
       </div>
       <dialog :open="finished">
@@ -105,7 +100,7 @@ export default {
       finishedTime: null,
       codeLang: 'javascript',
       inputHtml: '',
-      miss: null,
+      missed: false,
       isLastKeyValid: true,
       nTypes: 0,
       missTypes: 0,
@@ -186,15 +181,18 @@ export default {
 
       let code = event.target.value;
       if (code[this.cursorPos] !== finalCode[this.cursorPos]) {
-        this.missTypes += 1;
-        this.miss = {
-          want: finalCode[this.cursorPos],
-          got: code[this.cursorPos],
-        };
         this.$refs.textarea.value = code.substring(0, this.cursorPos);
+
+        this.missTypes += 1;
+        this.missed = true;
+        setTimeout(() => {
+          // Clear the missed state immediately to
+          // remove the animation class from the cursor in code block.
+          this.missed = false;
+        }, 300);
         return;
       } else {
-        this.miss = null;
+        this.missed = false;
       }
 
       // Skip space prefixes.
@@ -265,30 +263,6 @@ pre {
   bottom: 0;
   width: 100%;
   z-index: 10;
-}
-
-.miss {
-  height: 50px;
-}
-
-.miss-got {
-  color: red;
-}
-
-.miss-got::before {
-  content: '✖ ';
-  width: 20px;
-  display: inline-block;
-}
-
-.miss-want {
-  color: green;
-}
-
-.miss-want::before {
-  content: '✓ ';
-  width: 20px;
-  display: inline-block;
 }
 
 .container {

@@ -1,21 +1,28 @@
 <template>
-  <div>
-    <h1>Type in Code</h1>
-    <p>
-      This is a typing game using programming source code.<br>
-      <span v-show="!startedTime">
-        Press ENTER to
-        {{nPlays === 0 ? "start" : "retry"}}!
-      </span>
-      <span v-show="startedTime">
-        Started!
-      </span>
-    </p>
-    <screen
-      :problem="problem"
-      :started-time="startedTime"
-      @finish="handleFinish"
-     ></screen>
+  <div class="root">
+    <header class="header">
+      <h1>Type in Code</h1>
+    </header>
+    <div class="body">
+      <p>
+        This is a typing game using programming source code.<br>
+        <span v-show="!startedTime">
+          Press ENTER to
+          {{nPlays === 0 ? "start" : "retry"}}!
+        </span>
+        <span v-show="startedTime">
+          Started!
+        </span>
+      </p>
+      <main>
+        <screen
+          class="screen"
+          :problem="problem"
+          :started-time="startedTime"
+          @finish="handleFinish"
+        ></screen>
+      </main>
+    </div>
   </div>
 </template>
 
@@ -74,5 +81,32 @@ export default {
 </script>
 
 <style scoped>
-/* nothing */
+.root {
+  background-color: rgb(37, 37, 38);
+  color: rgb(156, 156, 156);
+}
+
+.header {
+  background-color: rgb(51, 51, 51);
+  color: #fff;
+  padding: 8px 16px;
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+}
+
+.header h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
+.body {
+  padding: 52px 20px 40px;
+}
+
+.screen {
+  margin: 40px auto;
+  min-width: 480px;
+}
 </style>

@@ -3,7 +3,11 @@
   <pre><code :class="langClasses"><span
     v-html="codeHtml"
    ></span><span
-    :class="{'code-cursor': showCursor, 'is-blinking': !inputting}"
+    :class="{
+      'code-cursor': showCursor,
+      'is-blinking': !inputting,
+      'has-missed': hasMissed,
+    }"
    ></span></code></pre>
 </template>
 
@@ -17,6 +21,10 @@ export default {
       default: false,
     },
     inputting: {
+      type: Boolean,
+      default: false,
+    },
+    hasMissed: {
       type: Boolean,
       default: false,
     },
@@ -34,6 +42,10 @@ export default {
 </script>
 
 <style scoped>
+.hljs {
+  background-color: #111;
+}
+
 .code-cursor {
   margin: 0 10px 0 0;
   border-right: 1px #fff solid;
@@ -43,6 +55,11 @@ export default {
   animation-name: blink-cursor;
   animation-duration: 1s;
   animation-iteration-count: infinite;
+}
+
+.code-cursor.has-missed {
+  animation-name: has-missed;
+  animation-duration: 0.2s;
 }
 
 @keyframes blink-cursor {
@@ -56,6 +73,22 @@ export default {
 
   100% {
     visibility: visible;
+  }
+}
+
+@keyframes has-missed {
+  0% {
+    transform: scale(4);
+    border: 6px solid red;
+  }
+
+  20% {
+    transform: scale(1.2);
+  }
+
+  100% {
+    transform: scale(1);
+    border: 1px solid #fff;
   }
 }
 </style>
