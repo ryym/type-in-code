@@ -46,8 +46,18 @@ export const createStore = () => {
       },
 
       async fetchProblemCode({commit}) {
+        // For now (prevent sending too many requests to GitHub).
+        const lastProblem = localStorage.getItem('lastProblem');
+        if (lastProblem) {
+          console.log('Use cached problem from localStorage');
+          commit('setProblem', JSON.parse(lastProblem));
+          return;
+        }
+
         const code = await fetchProblemCode();
-        commit('setProblem', {code, lang: 'javascript'});
+        const problem = {code, lang: 'javascript'};
+        commit('setProblem', problem);
+        localStorage.setItem('lastProblem', JSON.stringify(problem));
       },
     },
   });
