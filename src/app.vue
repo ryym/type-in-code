@@ -6,21 +6,16 @@
     <div class="body">
       <p>
         This is a typing game using programming source code.<br>
-        <span v-show="!startedTime">
+        <span v-show="!isInGame">
           Press ENTER to
           {{nPlays === 0 ? "start" : "retry"}}!
         </span>
-        <span v-show="startedTime">
+        <span v-show="isInGame">
           Started!
         </span>
       </p>
       <main>
-        <screen
-          class="screen"
-          :problem="problem"
-          :started-time="startedTime"
-          @finish="handleFinish"
-        ></screen>
+        <screen class="screen"></screen>
       </main>
     </div>
   </div>
@@ -28,6 +23,7 @@
 
 <script>
 import Screen from './screen';
+import {mapGetters, mapState} from 'vuex';
 
 export default {
   components: {
@@ -37,23 +33,24 @@ export default {
   mounted() {
     document.addEventListener('keydown', this.detectKeydown);
     this.$store.dispatch('fetchProblemCode');
+
+    this.$store.subscribe(mut => {
+      if (mut.type === 'finishTyping') {
+        document.addEventListener('keydown', this.detectKeydown);
+      }
+    });
   },
 
   beforeDestroy() {
     this.removeKeydownHandler();
   },
 
-  data() {
-    return {
-      startedTime: null,
-      nPlays: 0,
-    };
-  },
-
   computed: {
-    problem() {
-      return this.$store.state.problem;
-    },
+    ...mapState({
+      nPlays: s => s.nPlays,
+    }),
+
+    ...mapGetters(['isInGame']),
   },
 
   methods: {
@@ -69,12 +66,7 @@ export default {
     },
 
     startTyping() {
-      this.startedTime = Date.now();
-    },
-
-    handleFinish() {
-      this.startedTime = null;
-      this.nPlays += 1;
+      this.$store.dispatch('startTyping');
     },
   },
 };

@@ -7,7 +7,11 @@ import './global.scss';
 
 Vue.use(Vuex);
 
-const store = createStore();
+if (typeof hljs === 'undefined') {
+  throw new Error('Highlight.js must be loaded');
+}
+
+const store = createStore({hljs});
 
 if (process.env.NODE_ENV === 'development') {
   // For easy debugging.

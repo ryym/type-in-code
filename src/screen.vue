@@ -37,126 +37,61 @@
 
 <script>
 import CodeBlock from './code-block';
-
-const SAMPLE_CODE = `function add(a, b) {
-  return a + b;
-}`;
-
-const SAMPLE_CODE_NON_ASCII = `// 日本語コメント
-function ほげ(a, いうえ, c) {
-  あい, console.log(a + "𠮷野屋😭")
-}`;
-
-const CHAR_CODE = {
-  LF: 10,
-};
-
-const findNextAsciiPos = (str, from) => {
-  for (let i = from; i < str.length; i++) {
-    const cc = str.charCodeAt(i);
-
-    // Allow characters between space and tilde and line feeds.
-    if ((32 <= cc && cc <= 126) || cc === CHAR_CODE.LF) {
-      return i;
-    }
-  }
-  return null;
-};
-
-const makeSpacePrefixes = (str, from) => {
-  let i = from;
-  let spaces = '';
-  while (str[i] === ' ' && i < str.length) {
-    spaces += ' ';
-    i += 1;
-  }
-  return spaces;
-};
+import {mapGetters, mapState} from 'vuex';
 
 export default {
-  props: {
-    problem: {
-      type: Object,
-      required: true,
-    },
-    startedTime: {
-      type: Number,
-      default: null,
-    },
-  },
-
   components: {
     CodeBlock,
   },
 
   mounted() {
-    if (typeof hljs === 'undefined') {
-      throw new Error('Highlight.js must be loaded');
-    }
+    this.$store.watch(
+      s => s.input,
+      input => {
+        if (this.$refs.textarea.value !== input) {
+          this.syncTextarea(input);
+        }
+      }
+    );
+
+    this.$store.subscribe(mut => {
+      if (mut.type === 'startTyping') {
+        requestAnimationFrame(() => this.focusTextarea());
+      }
+    });
   },
 
   data() {
     return {
-      finishedTime: null,
-      codeLang: 'javascript',
-      inputHtml: '',
-      missed: false,
       isLastKeyValid: true,
-      nTypes: 0,
-      missTypes: 0,
-      cursorPos: null,
-      totalTime: null,
     };
   },
 
   computed: {
-    finalHtml() {
-      // TODO: Replace tabs and full width spaces to spaces.
-      // TODO: Replace CRLF to LF?
-      const result = hljs.highlight('javascript', this.problem.code, true);
-      return result.value;
-    },
-    started() {
-      return this.startedTime != null;
-    },
+    ...mapGetters([
+      'finalHtml',
+      'inputHtml',
+      'started',
+      'finished',
+      'isInGame',
+      'totalTime',
+    ]),
 
-    finished() {
-      return this.finishedTime != null;
-    },
-
-    isInGame() {
-      return this.started && !this.finished;
-    },
+    ...mapState({
+      problem: s => s.problem,
+      nTypes: s => s.nTypes,
+      missTypes: s => s.missTypes,
+      missed: s => s.missed,
+    }),
 
     missPercentage() {
       return Math.floor((this.missTypes / this.nTypes) * 100);
     },
   },
 
-  watch: {
-    startedTime(next, prev) {
-      if (prev == null && next != null) {
-        this.startTyping();
-      }
-    },
-  },
-
   methods: {
-    startTyping() {
-      this.finishedTime = null;
-      this.inputHtml = '';
-      this.nTypes = 0;
-      this.missTypes = 0;
-      this.cursorPos = findNextAsciiPos(this.problem.code, 0);
-      this.totalTime = null;
-
-      // Without delaying the focusing,
-      // a trigger key to start the typing game is inserted
-      // to the textarea...
-      requestAnimationFrame(() => {
-        this.focusTextarea();
-        this.$refs.textarea.value = '';
-      });
+    syncTextarea(input) {
+      this.$refs.textarea.value = input;
     },
 
     focusTextarea() {
@@ -175,63 +110,14 @@ export default {
         return;
       }
 
-      this.nTypes += 1;
-
-      const finalCode = this.problem.code;
-
-      let code = event.target.value;
-      if (code[this.cursorPos] !== finalCode[this.cursorPos]) {
-        this.$refs.textarea.value = code.substring(0, this.cursorPos);
-
-        this.missTypes += 1;
-        this.missed = true;
-        setTimeout(() => {
-          // Clear the missed state immediately to
-          // remove the animation class from the cursor in code block.
-          this.missed = false;
-        }, 300);
-        return;
+      const input = event.target.value;
+      const {$store: store} = this;
+      if (store.getters.isCorrectInput(input)) {
+        store.dispatch('addInput', input);
       } else {
-        this.missed = false;
+        this.syncTextarea(store.state.input);
+        store.dispatch('addMissType');
       }
-
-      // Skip space prefixes.
-      if (finalCode.charCodeAt(this.cursorPos) === CHAR_CODE.LF) {
-        const spaces = makeSpacePrefixes(finalCode, this.cursorPos + 1);
-        if (spaces) {
-          this.cursorPos += spaces.length;
-          code += spaces;
-          this.$refs.textarea.value = code;
-        }
-      }
-
-      const result = hljs.highlight('javascript', code, true);
-      this.inputHtml = result.value;
-
-      // Skip un-inputtable characters.
-      const nextPos = findNextAsciiPos(finalCode, this.cursorPos + 1);
-      if (nextPos == null) {
-        this.cursorPos = finalCode.length;
-      } else {
-        if (nextPos - this.cursorPos > 1) {
-          const addedCode = code + finalCode.substring(this.cursorPos + 1, nextPos);
-          this.$refs.textarea.value = addedCode;
-
-          const result2 = hljs.highlight('javascript', addedCode, true);
-          this.inputHtml = result2.value;
-        }
-        this.cursorPos = nextPos;
-      }
-
-      if (this.cursorPos >= finalCode.length) {
-        this.finishTyping();
-      }
-    },
-
-    finishTyping() {
-      this.finishedTime = Date.now();
-      this.totalTime = this.finishedTime - this.startedTime;
-      this.$emit('finish');
     },
   },
 };
