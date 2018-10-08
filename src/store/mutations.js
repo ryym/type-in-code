@@ -35,10 +35,6 @@ const finishTyping = state => {
 };
 
 export const mutations = {
-  ping(state) {
-    state.pingCount += 1;
-  },
-
   setProblem,
   startTyping,
   addMissType,

@@ -64,10 +64,6 @@ const addInput = ({state, commit}, input) => {
 };
 
 export const actions = {
-  pingAsync({commit}, ms = 1000) {
-    setTimeout(() => commit('ping'), ms);
-  },
-
   fetchProblemCode,
   startTyping,
   addMissType,
