@@ -6,13 +6,15 @@
     <div class="body">
       <p>
         This is a typing game using programming source code.<br>
-        <span v-show="!isInGame">
-          Press ENTER to
-          {{nPlays === 0 ? "start" : "retry"}}!
-        </span>
-        <span v-show="isInGame">
-          Started!
-        </span>
+        <button
+          type="button"
+          class="start-btn"
+          title="Press Enter"
+          :disabled="isInGame"
+          @click="startTyping"
+         >
+          {{isInGame ? "STARTED!" : nPlays == 0 ? "START" : "RETRY"}}
+        </button>
       </p>
       <main>
         <screen class="screen"></screen>
@@ -57,7 +59,6 @@ export default {
     detectKeydown(event) {
       if (event.code == 'Enter') {
         this.startTyping();
-        this.removeKeydownHandler();
       }
     },
 
@@ -67,6 +68,7 @@ export default {
 
     startTyping() {
       this.$store.dispatch('startTyping');
+      this.removeKeydownHandler();
     },
   },
 };
@@ -95,6 +97,21 @@ export default {
 
 .body {
   padding: 52px 20px 40px;
+}
+
+.start-btn {
+  margin: 10px 0;
+  color: #fff;
+  border: 0;
+  background-color: rgb(0, 122, 204);
+  font-size: 16px;
+  text-align: center;
+  padding: 8px 12px;
+  cursor: pointer;
+}
+
+.start-btn:disabled {
+  opacity: 0.5;
 }
 
 .screen {
