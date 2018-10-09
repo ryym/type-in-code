@@ -20,7 +20,7 @@ const fetchProblemCode = async ({commit}) => {
 };
 
 const startTyping = ({commit}) => {
-  // I don't know why but We cannot focus the textarea
+  // I don't know why but we cannot focus the textarea
   // without delaying the 'startTyping' commit.
   requestAnimationFrame(() => commit('startTyping'));
 };
