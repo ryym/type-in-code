@@ -10,6 +10,11 @@ export const createGetters = hljs => {
       return result.value;
     },
 
+    inputPercentage: state => {
+      const rate = state.input.length / state.problem.code.length;
+      return Math.ceil(rate * 100);
+    },
+
     started: state => {
       return state.startTime != null;
     },

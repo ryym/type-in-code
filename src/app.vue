@@ -1,7 +1,18 @@
 <template>
   <div class="root">
     <header class="header">
-      <h1>Type in Code</h1>
+      <div class="header-left">
+        <h1>Type in Code</h1>
+      </div>
+      <div v-if="isInGame" class="header-right">
+        {{elapsedSecs}} s
+      </div>
+      <div class="typing-progress">
+        <div
+          class="typing-progress-bar"
+          :style="{'width': `${typingProgress}%`}"
+        ></div>
+      </div>
     </header>
     <div class="body">
       <p>
@@ -38,7 +49,7 @@ export default {
 
     this.$store.subscribe(mut => {
       if (mut.type === 'finishTyping') {
-        document.addEventListener('keydown', this.detectKeydown);
+        this.handleFinishTyping();
       }
     });
   },
@@ -47,12 +58,22 @@ export default {
     this.removeKeydownHandler();
   },
 
+  data() {
+    return {
+      elapsedSecs: 0,
+    };
+  },
+
   computed: {
     ...mapState({
       nPlays: s => s.nPlays,
     }),
 
     ...mapGetters(['isInGame']),
+
+    typingProgress() {
+      return this.$store.getters.inputPercentage;
+    },
   },
 
   methods: {
@@ -69,6 +90,16 @@ export default {
     startTyping() {
       this.$store.dispatch('startTyping');
       this.removeKeydownHandler();
+
+      this.elapsedSecsTimer = setInterval(() => {
+        this.elapsedSecs += 1;
+      }, 1000);
+    },
+
+    handleFinishTyping() {
+      clearInterval(this.elapsedSecsTimer);
+      this.elapsedSecs = 0;
+      document.addEventListener('keydown', this.detectKeydown);
     },
   },
 };
@@ -80,7 +111,15 @@ export default {
   color: rgb(156, 156, 156);
 }
 
+h1 {
+  margin: 0;
+  font-size: 20px;
+}
+
 .header {
+  position: relative;
+  display: flex;
+  align-items: center;
   background-color: rgb(51, 51, 51);
   color: #fff;
   padding: 8px 16px;
@@ -90,9 +129,29 @@ export default {
   z-index: 100;
 }
 
-.header h1 {
-  margin: 0;
-  font-size: 20px;
+.header-left {
+  flex: 1 1 auto;
+}
+
+.header-right {
+  justify-content: flex-end;
+  flex: 1 1 auto;
+  display: inline-flex;
+  align-items: center;
+}
+
+.typing-progress {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: -1px;
+  height: 2px;
+}
+
+.typing-progress-bar {
+  background-color: rgb(0, 122, 204);
+  height: 100%;
+  transition: width 0.1s linear;
 }
 
 .body {

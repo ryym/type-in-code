@@ -1,6 +1,8 @@
 import {fetchProblemCode as fetchCode} from '../lib/fetch-code';
 import {CHAR_CODE, findNextAsciiPos, makeSpacePrefixes} from '../lib/input';
 
+const SAMPLE_CODE = `function add() {}`;
+
 const fetchProblemCode = async ({commit}) => {
   // For now (prevent sending too many requests to GitHub).
   const lastProblem = localStorage.getItem('lastProblem');
@@ -11,6 +13,8 @@ const fetchProblemCode = async ({commit}) => {
   }
 
   const code = await fetchCode();
+
+  // const code = SAMPLE_CODE;
 
   // TODO: Replace tabs and full width spaces to spaces.
   // TODO: Replace CRLF to LF?
