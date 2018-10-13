@@ -26,22 +26,20 @@
           :has-missed="missed"
          />
       </div>
-      <dialog :open="finished">
-        <p>clear!</p>
-        <p>{{totalTime}}ms</p>
-        <p>Miss types: {{missTypes}} / {{nTypes}} ({{missPercentage}}%)</p>
-      </dialog>
+      <result-dialog :open="finished" />
     </div>
   </div>
   </template>
 
 <script>
 import CodeBlock from './code-block';
+import ResultDialog from './result-dialog';
 import {mapGetters, mapState} from 'vuex';
 
 export default {
   components: {
     CodeBlock,
+    ResultDialog,
   },
 
   mounted() {
@@ -68,25 +66,12 @@ export default {
   },
 
   computed: {
-    ...mapGetters([
-      'finalHtml',
-      'inputHtml',
-      'started',
-      'finished',
-      'isInGame',
-      'totalTime',
-    ]),
+    ...mapGetters(['finalHtml', 'inputHtml', 'started', 'finished', 'isInGame']),
 
     ...mapState({
       problem: s => s.problem,
-      nTypes: s => s.nTypes,
-      missTypes: s => s.missTypes,
       missed: s => s.missed,
     }),
-
-    missPercentage() {
-      return Math.floor((this.missTypes / this.nTypes) * 100);
-    },
   },
 
   methods: {
