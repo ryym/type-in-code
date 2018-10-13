@@ -109,6 +109,7 @@ export default {
 .root {
   background-color: rgb(37, 37, 38);
   color: rgb(156, 156, 156);
+  min-height: 100%;
 }
 
 h1 {
