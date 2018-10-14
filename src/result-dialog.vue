@@ -1,18 +1,26 @@
 <template>
-  <div class="root" :class="{'is-open': open}">
+  <div class="result-dialog" :class="{'is-open': open}">
       <p class="title">CLEAR</p>
       <div class="body">
         <p v-for="result in results" :key="result" class="result">
           {{result}}
         </p>
+        <div class="actions">
+          <v-button @click="$emit('retry')">RETRY</v-button>
+        </div>
       </div>
   </div>
 </template>
 
-<script>
+<script scoped>
 import {mapState, mapGetters} from 'vuex';
+import Button from './button';
 
 export default {
+  components: {
+    'v-button': Button,
+  },
+
   props: {
     open: {
       type: Boolean,
@@ -45,7 +53,7 @@ export default {
 </script>
 
 <style scoped>
-.root {
+.result-dialog {
   display: none;
   border: 2px solid black;
   color: #fff;
@@ -53,6 +61,14 @@ export default {
   box-shadow: 2px 1px 2px 1px rgb(10, 10, 10);
   padding: 8px 16px;
   min-width: 360px;
+}
+
+.result-dialog.is-open {
+  display: block;
+  position: fixed;
+  top: 20px;
+  right: 20%;
+  z-index: 200;
 }
 
 p {
@@ -87,11 +103,8 @@ p {
   margin-right: 0.5em;
 }
 
-.root.is-open {
-  display: block;
-  position: fixed;
-  top: 20px;
-  right: 20%;
-  z-index: 200;
+.actions {
+  margin-top: 8px;
+  text-align: center;
 }
 </style>

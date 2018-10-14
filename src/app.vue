@@ -1,5 +1,5 @@
 <template>
-  <div class="root">
+  <div class="app">
     <header class="header">
       <div class="header-left">
         <h1>Type in Code</h1>
@@ -17,30 +17,35 @@
     <div class="body">
       <p>
         This is a typing game using programming source code.<br>
-        <button
+        <v-button
           type="button"
-          class="start-btn"
           title="Press Enter"
           :disabled="isInGame"
           @click="startTyping"
          >
           {{isInGame ? "STARTED!" : nPlays == 0 ? "START" : "RETRY"}}
-        </button>
+        </v-button>
       </p>
       <main>
         <screen class="screen"></screen>
+        <result-dialog :open="finished" @retry="startTyping">
+        </result-dialog>
       </main>
     </div>
   </div>
 </template>
 
 <script>
-import Screen from './screen';
 import {mapGetters, mapState} from 'vuex';
+import Button from './button';
+import Screen from './screen';
+import ResultDialog from './result-dialog';
 
 export default {
   components: {
+    'v-button': Button,
     Screen,
+    ResultDialog,
   },
 
   mounted() {
@@ -69,7 +74,7 @@ export default {
       nPlays: s => s.nPlays,
     }),
 
-    ...mapGetters(['isInGame']),
+    ...mapGetters(['isInGame', 'finished']),
 
     typingProgress() {
       return this.$store.getters.inputPercentage;
@@ -106,7 +111,7 @@ export default {
 </script>
 
 <style scoped>
-.root {
+.app {
   background-color: rgb(37, 37, 38);
   color: rgb(156, 156, 156);
   min-height: 100%;
@@ -156,22 +161,7 @@ h1 {
 }
 
 .body {
-  padding: 52px 20px 40px;
-}
-
-.start-btn {
-  margin: 10px 0;
-  color: #fff;
-  border: 0;
-  background-color: rgb(0, 122, 204);
-  font-size: 16px;
-  text-align: center;
-  padding: 8px 12px;
-  cursor: pointer;
-}
-
-.start-btn:disabled {
-  opacity: 0.5;
+  padding: 52px 32px 40px;
 }
 
 .screen {

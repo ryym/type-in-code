@@ -26,20 +26,17 @@
           :has-missed="missed"
          />
       </div>
-      <result-dialog :open="finished" />
     </div>
   </div>
   </template>
 
 <script>
 import CodeBlock from './code-block';
-import ResultDialog from './result-dialog';
 import {mapGetters, mapState} from 'vuex';
 
 export default {
   components: {
     CodeBlock,
-    ResultDialog,
   },
 
   mounted() {
