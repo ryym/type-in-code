@@ -1,5 +1,5 @@
 <template>
-  <!-- Be careful not to insert link breaks. -->
+  <!-- Be careful not to insert line breaks. -->
   <pre><code :class="langClasses"><span
     v-html="codeHtml"
    ></span><span
