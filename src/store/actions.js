@@ -1,12 +1,20 @@
 import {fetchProblemCode as fetchCode} from '../lib/fetch-code';
 import {CHAR_CODE, findNextAsciiPos, makeSpacePrefixes} from '../lib/input';
 
+// TODO: Replace CRLF to LF?
+const normalizeCode = code => {
+  code = code.replace(/\t/g, '  ');
+  if (code[code.length - 1] !== '\n') {
+    code += '\n';
+  }
+  return code;
+};
+
 const fetchProblemCode = async ({commit}) => {
   const {sourceCode, langName} = await fetchCode();
 
-  // TODO: Replace tabs and full width spaces to spaces.
-  // TODO: Replace CRLF to LF?
-  const problem = {code: sourceCode, lang: langName};
+  const code = normalizeCode(sourceCode);
+  const problem = {code, lang: langName};
   commit('setProblem', problem);
 };
 
