@@ -44,6 +44,7 @@ export default {
 <style scoped>
 .hljs {
   background-color: #111;
+  font-family: 'Source Code Pro', monospace;
 }
 
 .code-cursor {

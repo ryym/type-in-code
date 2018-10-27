@@ -14,7 +14,7 @@ const langs = [
   },
   {
     name: 'ruby',
-    fileName: problemName => `${problemName}.rb`,
+    fileName: problemName => `${problemName.replace(/-/g, '_')}.rb`,
   },
   {
     name: 'rust',
@@ -57,7 +57,8 @@ const selectProblems = dirContents => {
 };
 
 export const fetchProblemCode = async () => {
-  const lang = langs[getRandomInt(langs.length)];
+  // const lang = langs[getRandomInt(langs.length)];
+  const lang = langs.find(l => l.name === 'ruby');
 
   const problems = await fetchProblems(lang.name);
   const problem = problems[getRandomInt(problems.length)];
