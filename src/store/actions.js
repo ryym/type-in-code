@@ -1,26 +1,13 @@
 import {fetchProblemCode as fetchCode} from '../lib/fetch-code';
 import {CHAR_CODE, findNextAsciiPos, makeSpacePrefixes} from '../lib/input';
 
-const SAMPLE_CODE = `function add() {}`;
-
 const fetchProblemCode = async ({commit}) => {
-  // For now (prevent sending too many requests to GitHub).
-  const lastProblem = localStorage.getItem('lastProblem');
-  if (lastProblem) {
-    console.log('Use cached problem from localStorage');
-    commit('setProblem', JSON.parse(lastProblem));
-    return;
-  }
-
-  const code = await fetchCode();
-
-  // const code = SAMPLE_CODE;
+  const {sourceCode, langName} = await fetchCode();
 
   // TODO: Replace tabs and full width spaces to spaces.
   // TODO: Replace CRLF to LF?
-  const problem = {code, lang: 'javascript'};
+  const problem = {code: sourceCode, lang: langName};
   commit('setProblem', problem);
-  localStorage.setItem('lastProblem', JSON.stringify(problem));
 };
 
 const startTyping = ({commit}) => {
