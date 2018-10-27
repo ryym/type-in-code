@@ -8,6 +8,18 @@ const langs = [
     name: 'javascript',
     fileName: problemName => `${problemName}.js`,
   },
+  {
+    name: 'go',
+    fileName: problemName => `${problemName}.go`,
+  },
+  {
+    name: 'ruby',
+    fileName: problemName => `${problemName}.rb`,
+  },
+  {
+    name: 'rust',
+    fileName: () => 'src/lib.rs',
+  },
 ];
 
 const getRandomInt = ceil => Math.floor(Math.random() * ceil);
