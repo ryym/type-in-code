@@ -54,7 +54,7 @@ module.exports = {
       dev: '[name].js',
       prod: '[name]-[hash].js',
     }),
-    publicPath: '/',
+    publicPath: '',
   },
 
   devServer: {
