@@ -45,7 +45,7 @@ export default {
       return [
         `${this.totalTime}ms`,
         `Types: ${this.nTypes}`,
-        `Miss types: ${this.missTypes} / ${this.nTypes} (${this.missPercentage})`,
+        `Miss types: ${this.missTypes} / ${this.nTypes} (${this.missPercentage}%)`,
       ];
     },
   },
