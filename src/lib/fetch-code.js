@@ -10,7 +10,7 @@ const langs = [
   },
   {
     name: 'go',
-    fileName: problemName => `${problemName}.go`,
+    fileName: problemName => `${problemName.replace(/-/g, '_')}.go`,
   },
   {
     name: 'ruby',
@@ -57,8 +57,7 @@ const selectProblems = dirContents => {
 };
 
 export const fetchProblemCode = async () => {
-  // const lang = langs[getRandomInt(langs.length)];
-  const lang = langs.find(l => l.name === 'ruby');
+  const lang = langs[getRandomInt(langs.length)];
 
   const problems = await fetchProblems(lang.name);
   const problem = problems[getRandomInt(problems.length)];
