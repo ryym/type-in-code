@@ -25,6 +25,9 @@
          >
           {{isInGame ? "STARTED!" : nPlays == 0 ? "START" : "RETRY"}}
         </v-button>
+        <span class="lang-name" v-if="langName">
+          Language: {{langName}}
+        </span>
       </p>
       <main>
         <screen class="screen"></screen>
@@ -72,6 +75,7 @@ export default {
   computed: {
     ...mapState({
       nPlays: s => s.nPlays,
+      langName: s => s.problem && s.problem.langName,
     }),
 
     ...mapGetters(['isInGame', 'finished']),
@@ -162,6 +166,10 @@ h1 {
 
 .body {
   padding: 52px 32px 40px;
+}
+
+.lang-name {
+  margin-left: 12px;
 }
 
 .screen {

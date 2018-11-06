@@ -11,10 +11,10 @@ const normalizeCode = code => {
 };
 
 const fetchProblemCode = async ({commit}) => {
-  const {sourceCode, langName} = await fetchCode();
+  const {sourceCode, langKey, langName} = await fetchCode();
 
   const code = normalizeCode(sourceCode);
-  const problem = {code, lang: langName};
+  const problem = {code, lang: langKey, langName};
   commit('setProblem', problem);
 };
 

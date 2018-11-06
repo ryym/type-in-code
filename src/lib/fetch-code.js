@@ -5,19 +5,23 @@ import {Base64} from 'js-base64';
 
 const langs = [
   {
-    name: 'javascript',
+    key: 'javascript',
+    name: 'JavaScript',
     fileName: problemName => `${problemName}.js`,
   },
   {
-    name: 'go',
+    key: 'go',
+    name: 'Go',
     fileName: problemName => `${problemName.replace(/-/g, '_')}.go`,
   },
   {
-    name: 'ruby',
+    key: 'ruby',
+    name: 'Ruby',
     fileName: problemName => `${problemName.replace(/-/g, '_')}.rb`,
   },
   {
-    name: 'rust',
+    key: 'rust',
+    name: 'Rust',
     fileName: () => 'src/lib.rs',
   },
 ];
@@ -31,15 +35,15 @@ const fetchJson = async url => {
   return await res.json();
 };
 
-const fetchProblems = async langName => {
-  const cache = sessionStorage.getItem(`problems/${langName}`);
+const fetchProblems = async langKey => {
+  const cache = sessionStorage.getItem(`problems/${langKey}`);
   if (cache) {
     return JSON.parse(cache);
   }
 
-  const dirContents = await fetchJson(`${REPO_URL}/${langName}`);
+  const dirContents = await fetchJson(`${REPO_URL}/${langKey}`);
   const problems = selectProblems(dirContents);
-  sessionStorage.setItem(`problems/${langName}`, JSON.stringify(problems));
+  sessionStorage.setItem(`problems/${langKey}`, JSON.stringify(problems));
 
   return problems;
 };
@@ -59,11 +63,11 @@ const selectProblems = dirContents => {
 export const fetchProblemCode = async () => {
   const lang = langs[getRandomInt(langs.length)];
 
-  const problems = await fetchProblems(lang.name);
+  const problems = await fetchProblems(lang.key);
   const problem = problems[getRandomInt(problems.length)];
   const srcFileName = lang.fileName(problem.name);
 
-  const srcURL = `${REPO_URL}/${lang.name}/${problem.name}/${srcFileName}`;
+  const srcURL = `${REPO_URL}/${lang.key}/${problem.name}/${srcFileName}`;
   const srcContent = await fetchJson(srcURL);
   if (srcContent.type !== 'file') {
     console.error(srcContent);
@@ -76,6 +80,7 @@ export const fetchProblemCode = async () => {
 
   return {
     sourceCode: Base64.decode(srcContent.content),
+    langKey: lang.key,
     langName: lang.name,
   };
 };

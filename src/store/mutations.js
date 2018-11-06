@@ -1,7 +1,7 @@
 import {findNextAsciiPos} from '../lib/input';
 
-const setProblem = (state, {lang, code}) => {
-  state.problem = {lang, code};
+const setProblem = (state, problem) => {
+  state.problem = problem;
 };
 
 const startTyping = state => {
